@@ -10,14 +10,24 @@ ENV PYTHONUNBUFFERED 1
 # 设置pip源为国内源
 COPY pip.conf /root/.pip/pip.conf
 
-# 在容器内创建mysite文件夹
-RUN mkdir -p /var/www/html/mysite
 
-# 设置容器内工作目录
-WORKDIR /var/www/html/mysite
+RUN apt-get update \
+	&& apt-get install -y --no-install-recommends \
+		postgresql-client \
+	&& rm -rf /var/lib/apt/lists/*
 
-# 将当前目录文件加入到容器工作目录中（. 表示当前宿主机目录）
-ADD . /var/www/html/mysite
+WORKDIR /usr/src/app
 
-# pip安装依赖
+COPY requirements.txt ./
 RUN pip install -r requirements.txt
+COPY . .
+
+
+EXPOSE 80
+CMD ["python", "manage.py", "runserver", "0.0.0.0:80"]
+
+
+
+
+
+
